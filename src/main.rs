@@ -12,5 +12,5 @@ fn main() {
 
     input_buffer.pop();
 
-    println!("{}: command not found.", input_buffer);
+    println!("{}: command not found", input_buffer);
 }
