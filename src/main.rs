@@ -4,15 +4,32 @@ use std::io::{self, Write};
 use std::collections::HashMap;
 
 fn main() {
+    let commands = command_registration();
+
     loop {
         let (command, args): (String, String) = read();
-        eval(command, args);
+        eval(&commands, command, args);
     }
 }
 
 trait Command {
     fn execute(&self, args: String) -> Result<(), ()>;
 }
+
+struct Type {
+    commands: Vec<String>,
+}
+impl Command for Type {
+    fn execute(&self, args: String) -> Result<(), ()> {
+        match self.commands.contains(&args) {
+            true => println!("{} is a shell builtin", args),
+            false => println!("{}: not found", args),
+        }
+
+        Ok(())
+    }
+}
+
 struct Echo;
 impl Command for Echo {
     fn execute(&self, args: String) -> Result<(), ()> {
@@ -46,11 +63,21 @@ fn read() -> (String, String) {
         .unwrap_or((input_buffer, "".to_string()))
 }
 
-fn eval(command: String, args: String) {
+fn command_registration() -> HashMap<String, Box<dyn Command>> {
     let mut commands: HashMap<String, Box<dyn Command>> = HashMap::new();
-    commands.insert("exit".to_string(), Box::new(Exit));
-    commands.insert("echo".to_string(), Box::new(Echo));
 
+    commands.insert("exit".into(), Box::new(Exit));
+    commands.insert("echo".into(), Box::new(Echo));
+
+    let mut names: Vec<String> = commands.keys().cloned().collect();
+    names.push("type".into());
+
+    commands.insert("type".into(), Box::new(Type { commands: names }));
+
+    commands
+}
+
+fn eval(commands: &HashMap<String, Box<dyn Command>>, command: String, args: String) {
     if let Some(cmd) = commands.get(&command) {
         let _ = cmd.execute(args);
     } else {
