@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::io::{self, Write};
+use std::process;
 
 pub mod commands;
 use crate::commands::{echo::Echo, exit::Exit, traits::Command, type_cmd::Type};
@@ -8,7 +9,14 @@ pub fn eval(commands: &HashMap<String, Box<dyn Command>>, command: String, args:
     if let Some(cmd) = commands.get(&command) {
         let _ = cmd.execute(args);
     } else {
-        println!("{}: command not found", command);
+        if let Ok(output) = process::Command::new(&command)
+            .args(args.split(' '))
+            .output()
+        {
+            print!("{}", String::from_utf8_lossy(&output.stdout));
+        } else {
+            println!("{}: command not found", command);
+        }
     }
 }
 

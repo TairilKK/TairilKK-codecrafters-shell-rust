@@ -21,7 +21,7 @@ impl Type {
         self.commands.contains(name)
     }
 
-    fn is_executable(&self, name: &String) -> Option<String> {
+    pub fn is_executable(name: &String) -> Option<String> {
         let dirs = Self::get_path_dirs()?;
 
         for dir in dirs {
@@ -87,7 +87,7 @@ impl Command for Type {
     fn execute(&self, args: String) -> Result<(), ()> {
         match self.is_command(&args) {
             true => println!("{} is a shell builtin", args),
-            false => match self.is_executable(&args) {
+            false => match Type::is_executable(&args) {
                 Some(path) => println!("{} is {}", args, path),
                 None => println!("{}: not found", args),
             },
