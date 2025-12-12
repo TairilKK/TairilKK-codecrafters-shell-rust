@@ -3,7 +3,7 @@ use std::io::{self, Write};
 use std::process;
 
 pub mod commands;
-use crate::commands::{echo::Echo, exit::Exit, traits::Command, type_cmd::Type};
+use crate::commands::{echo::Echo, exit::Exit, pwd::Pwd, traits::Command, type_cmd::Type};
 
 pub fn eval(commands: &HashMap<String, Box<dyn Command>>, command: String, args: String) {
     if let Some(cmd) = commands.get(&command) {
@@ -43,6 +43,7 @@ pub fn command_registration() -> HashMap<String, Box<dyn Command>> {
 
     commands.insert("exit".into(), Box::new(Exit));
     commands.insert("echo".into(), Box::new(Echo));
+    commands.insert("pwd".into(), Box::new(Pwd));
 
     let mut names: Vec<String> = commands.keys().cloned().collect();
     names.push("type".into());
